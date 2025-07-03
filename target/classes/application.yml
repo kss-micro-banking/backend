@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: cms
+  datasource:
+    url: jdbc:postgresql://localhost:5432/kss_test
+    username: lhuser
+    password: lhpassword
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: veekthorcodes@gmail.com
+    password: ofdzzxqbjvsqtjmt
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+jwt:
+  secret: bAOzFxCO7OTGBDF5hTGJZlRPUlMJ5MIt/qSfKGiqfHI=
+  expiration: 86400000
+springdoc:
+  swagger-ui:
+    persisteAuthorization: true
+    filter: true
+    path: /swagger-ui.html
