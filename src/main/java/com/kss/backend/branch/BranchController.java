@@ -36,6 +36,7 @@ public class BranchController {
         this.branchService = branchService;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     ResponseEntity<Branch> create(@Valid @RequestBody BranchCreateDto dto) {
         Branch branch = branchService.create(dto);

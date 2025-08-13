@@ -1,5 +1,6 @@
 package com.kss.backend.user.admin;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -31,34 +32,39 @@ import jakarta.validation.Valid;
 @Tag(name = "Admin Endpoints")
 public class AdminController {
 
-    private final AdminService adminService;
+  private final AdminService adminService;
 
-    public AdminController(UserService userService, AdminService adminService) {
-        this.adminService = adminService;
-    }
+  public AdminController(UserService userService, AdminService adminService) {
+    this.adminService = adminService;
+  }
 
-    @PostMapping
-    ResponseEntity<User> create(@Valid @RequestBody AdminCreateDto dto) {
-        var user = adminService.create(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+  @PostMapping
+  ResponseEntity<User> create(@RequestParam Optional<Boolean> init, @Valid @RequestBody AdminCreateDto dto) {
+    Admin admin;
+    if (init.isPresent() && init.get()) {
+      admin = adminService.init(dto);
+    } else {
+      admin = adminService.create(dto);
     }
+    return ResponseEntity.status(HttpStatus.CREATED).body(admin);
+  }
 
-    @PostMapping("/login")
-    ResponseEntity<Boolean> login(@Valid @RequestBody AdminLoginDto dto) {
-        boolean res = adminService.login(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
-    }
+  @PostMapping("/login")
+  ResponseEntity<Boolean> login(@Valid @RequestBody AdminLoginDto dto) {
+    boolean res = adminService.login(dto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(res);
+  }
 
-    @PostMapping("/verify-otp")
-    ResponseEntity<LoginResponse> verifyOtp(@Valid @RequestBody VerifyOtpDto dto) {
-        LoginResponse res = adminService.verifyOtp(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
-    }
+  @PostMapping("/verify-otp")
+  ResponseEntity<LoginResponse> verifyOtp(@Valid @RequestBody VerifyOtpDto dto) {
+    LoginResponse res = adminService.verifyOtp(dto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(res);
+  }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @DeleteMapping
-    ResponseEntity<Void> delete(@RequestParam UUID adminId) {
-        adminService.delete(adminId);
-        return ResponseEntity.noContent().build();
-    }
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @DeleteMapping
+  ResponseEntity<Void> delete(@RequestParam UUID adminId) {
+    adminService.delete(adminId);
+    return ResponseEntity.noContent().build();
+  }
 }

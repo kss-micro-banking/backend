@@ -9,6 +9,7 @@
 /Users/codes/dev/codes/kss/backend/src/main/java/com/kss/backend/config/OpenApiConfig.java
 /Users/codes/dev/codes/kss/backend/src/main/java/com/kss/backend/config/SecurityConfig.java
 /Users/codes/dev/codes/kss/backend/src/main/java/com/kss/backend/customer/Customer.java
+/Users/codes/dev/codes/kss/backend/src/main/java/com/kss/backend/customer/CustomerController.java
 /Users/codes/dev/codes/kss/backend/src/main/java/com/kss/backend/customer/CustomerMapper.java
 /Users/codes/dev/codes/kss/backend/src/main/java/com/kss/backend/customer/CustomerRepository.java
 /Users/codes/dev/codes/kss/backend/src/main/java/com/kss/backend/customer/CustomerService.java

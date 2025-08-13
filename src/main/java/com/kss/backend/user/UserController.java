@@ -1,6 +1,7 @@
 package com.kss.backend.user;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,17 +24,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "User Endpoints")
 public class UserController {
 
-    private final UserService userService;
+  private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+  public UserController(UserService userService) {
+    this.userService = userService;
+  }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    @GetMapping
-    ResponseEntity<List<User>> getUsers(@RequestParam User.Role role) {
-        var users = userService.findUsers(role);
-        return ResponseEntity.status(HttpStatus.OK).body(users);
-    }
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @GetMapping
+  ResponseEntity<List<User>> getUsers(@RequestParam Optional<User.Role> role) {
+    var users = userService.findUsers(role);
+    return ResponseEntity.status(HttpStatus.OK).body(users);
+  }
 
 }
