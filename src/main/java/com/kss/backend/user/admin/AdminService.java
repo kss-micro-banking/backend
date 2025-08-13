@@ -1,7 +1,5 @@
 package com.kss.backend.user.admin;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -14,9 +12,10 @@ import com.kss.backend.user.User;
 import com.kss.backend.user.UserService;
 import com.kss.backend.user.admin.dto.AdminCreateDto;
 import com.kss.backend.user.admin.dto.AdminLoginDto;
+import com.kss.backend.user.admin.dto.ResetPasswordDto;
 import com.kss.backend.user.dto.LoginResponse;
 import com.kss.backend.user.dto.VerifyOtpDto;
-import com.kss.backend.util.OtpService;
+import com.kss.backend.util.EmailService;
 
 /**
  * AdminService
@@ -27,7 +26,7 @@ public record AdminService(
     UserService userService,
     JwtService jwtService,
     PasswordEncoder passwordEncoder,
-    OtpService otpService) {
+    EmailService emailService) {
 
   private static final Logger log = LoggerFactory.getLogger(AdminService.class);
 
@@ -80,16 +79,13 @@ public record AdminService(
   public boolean login(AdminLoginDto dto) {
     Admin admin = getAdminByEmail(dto.email());
 
-    if (passwordEncoder.matches(passwordEncoder.encode(dto.password()), admin.getPassword())) {
+    if (!passwordEncoder.matches(dto.password(), admin.getPassword())) {
       throw new RuntimeException("Invalid credentials");
     }
 
     try {
-      String otp = otpService.generateOtp();
-      admin.setOtp(passwordEncoder.encode(otp));
-      admin.setOtpExpiry(Instant.now().plus(5, ChronoUnit.MINUTES));
+      emailService.sendOtp(admin);
       adminRepository.save(admin);
-      otpService.sendOtp(admin.getEmail(), otp);
       return true;
     } catch (Exception ex) {
       log.error(ex.getMessage());
@@ -99,23 +95,7 @@ public record AdminService(
 
   public LoginResponse verifyOtp(VerifyOtpDto dto) {
     Admin admin = getAdminByEmail(dto.email());
-
-    if (admin.getOtp() == null || admin.getOtpExpiry() == null) {
-      throw new RuntimeException("Request an otp to login.");
-    }
-
-    if (Instant.now().isAfter(admin.getOtpExpiry())) {
-      log.error("otp does not match");
-      throw new RuntimeException("Invalid OTP: Expired");
-    }
-
-    if (!passwordEncoder.matches(dto.otp(), admin.getOtp())) {
-      log.error("otp does not match");
-      throw new RuntimeException("Invalid OTP: Mismatch");
-    }
-
-    admin.setOtp(null);
-    admin.setOtpExpiry(null);
+    emailService.verifyOtp(admin, dto.otp(), false);
     adminRepository.save(admin);
 
     String token = jwtService.generateToken(admin.getEmail(), User.Role.ADMIN.toString());
@@ -127,4 +107,24 @@ public record AdminService(
     adminRepository.deleteById(id);
   }
 
+  public void sendPasswordResetLink(String email) {
+    Admin admin = getAdminByEmail(email);
+    emailService.sendPasswordResetLink(admin);
+    adminRepository.save(admin);
+  }
+
+  public void resetPassoword(ResetPasswordDto dto, String otp) {
+
+    Admin existingUser = getAdminByEmail(dto.email());
+    emailService.verifyOtp(existingUser, otp, true);
+
+    Admin otpOwner = adminRepository.findByOtp(otp).orElseThrow(() -> new RuntimeException("Invalid url"));
+    if (otpOwner.getEmail() != existingUser.getEmail()) {
+      throw new RuntimeException("Invalid OTP for " + existingUser.getEmail());
+    }
+
+    otpOwner.setPassword(passwordEncoder.encode(dto.newPassword()));
+    adminRepository.save(otpOwner);
+
+  }
 }

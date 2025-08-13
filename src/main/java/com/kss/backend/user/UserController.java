@@ -30,7 +30,7 @@ public class UserController {
     this.userService = userService;
   }
 
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @PreAuthorize("hasRole('ADMIN')")
   @GetMapping
   ResponseEntity<List<User>> getUsers(@RequestParam Optional<User.Role> role) {
     var users = userService.findUsers(role);

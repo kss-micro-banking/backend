@@ -32,3 +32,5 @@ springdoc:
     persisteAuthorization: true
     filter: true
     path: /swagger-ui.html
+app:
+  client-url: ${CLIENT_URL:http://localhost:5173}
