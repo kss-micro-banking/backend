@@ -1,0 +1,100 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+      - main
+
+jobs:
+  test-and-build:
+    name: Test and Build
+    runs-on: ubuntu-latest
+    if: github.ref == "refs/heads/dev"
+
+    steps:
+      - name: Get repo code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 21
+          distribution: temurin
+          cache: maven
+
+      - name: Build app with maven
+        run: |
+          mvn clean install
+          mvn verify
+
+  security-scan:
+    name: Run basic scan
+    runs-on: ubuntu-latest
+    if: github.ref == "refs/heads/dev"
+
+    steps:
+      - name: Clone repo code
+        uses: actions/checkout@v4
+
+      - name: Checking for leaks
+        uses: gitleaks/gitleaks-action@v2
+
+      - name: Dependency check
+        run: mvn org.owasp:dependency-check-maven:check
+
+  dockerize-app:
+    name: Dockerize application
+    runs-on: ubuntu-latest
+    needs: test-and-build
+    if: github.ref == "refs/heads/staging" || github.ref == "refs/heads/main"
+
+    steps:
+      - name: Clone repo code
+        uses: actions/checkout@v4
+
+      - name: AZ login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build image
+        run: |
+          CONTAINER_IMAGE=${{ secrets.ACR_LOGIN_SERVER }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }}
+          docker build -t $CONTAINER_IMAGE .
+          echo "TF_VAR_container_image=$CONTAINER_IMAGE" >> $GITHUB_ENV
+
+      - name: Push to ACR
+        run: |
+          az acr login --name ${{ secrets.ACR_NAME }}
+          docker push ${{ env.CONTAINER_IMAGE }}
+
+  terraform-deploy:
+    name: Deploy app
+    runs-on: ubuntu-latest
+    needs: dockerize-app
+    if: github.ref == "refs/heads/staging" || github.ref == "refs/heads/main"
+
+    steps:
+      - name: Clone repo code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - run: |
+          if [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            echo "TF_DIR=terraform/prod" >> $GITHUB_ENV
+          elif [ "$GITHUB_REF" = "refs/heads/staging" ]; then
+            echo "TF_DIR=terraform/dev" >> $GIHUB_ENV
+          else
+            echo "deployment not set for this branch"
+            exit 1
+          fi
+
+      - run: |
+          cd ${{ env.TF_DIR }}
+          terraform init
+          terraform plan
+          terraform apply -auto-approve
