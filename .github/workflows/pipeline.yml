@@ -40,6 +40,10 @@ jobs:
 
       - name: Checking for leaks
         uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
 
       - name: Dependency check
         run: mvn org.owasp:dependency-check-maven:check
