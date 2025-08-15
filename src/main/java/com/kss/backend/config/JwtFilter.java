@@ -47,12 +47,11 @@ class JwtFilter extends OncePerRequestFilter {
         String role = jwtService.getRoleFromToken(token);
 
         var userVerified = jwtService.verifyUser(token);
-        log.info("user verified: {}", userVerified);
         if (userVerified) {
           UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
               email,
               null,
-              Collections.singletonList(new SimpleGrantedAuthority(role)));
+              Collections.singletonList(new SimpleGrantedAuthority(String.format("ROLE_%s", role))));
 
           SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }

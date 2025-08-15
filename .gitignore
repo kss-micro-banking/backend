@@ -156,4 +156,6 @@ target/
 cred.txt
 .classpath
 .project
+.env
+.git
 

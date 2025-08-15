@@ -68,7 +68,7 @@ public record EmailService(
     if (Instant.now().isAfter(user.getOtpExpiry()))
       throw new RuntimeException("Invalid OTP: Expired");
 
-    boolean isMatch = encoded ? passwordEncoder.matches(otp, user.getOtp()) : otp.equals(user.getOtp());
+    boolean isMatch = encoded ? otp.equals(user.getOtp()) : passwordEncoder.matches(otp, user.getOtp());
 
     if (!isMatch)
       throw new RuntimeException("Invalid OTP: Mismatch");
