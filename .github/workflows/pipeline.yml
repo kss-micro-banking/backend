@@ -81,7 +81,6 @@ jobs:
     if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main'
     environment:
       name: ${{ github.ref_name == 'main' && 'Production' || 'Staging' }}
-      url: ${{ github.ref_name == 'main' && secrets.PRODUCTION_URL || secrets.STAGING_URL }}
 
     steps:
       - name: Clone repo code
