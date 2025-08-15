@@ -76,6 +76,28 @@ resource "azurerm_container_app" "main" {
       image  = var.container_image
       cpu    = var.container_cpu
       memory = var.container_memory
+
+      env {
+        name = "DB_URL"
+        value = var.db_url
+      }
+      env {
+        name = "JWT_SECRET"
+        value = var.jwt_secret
+      }
+
+      env {
+        name = "MAIL_USER"
+        value = var.mail_user
+      }
+      env {
+        name = "MAIL_PASSWORD"
+        value = var.mail_password
+      }
+      env {
+        name = "CLIENT_URL"
+        value = var.client_url
+      }
     }
   }
 

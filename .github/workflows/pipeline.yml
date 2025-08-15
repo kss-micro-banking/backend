@@ -100,5 +100,12 @@ jobs:
       - run: |
           cd ${{ env.TF_DIR }}
           terraform init
+          cat > terraform.tfvars <<EOF
+            db_url           = ${{ secret.DB_URL }}
+            mail_user        = ${{ secret.MAIL_USER }}
+            mail_password    = ${{ secret.MAIL_PASSWORD }}
+            jwt_secret       = ${{ secret.JWT_SECRET }}
+            client_url       = ${{ secret.CLIENT_URL }}
+          EOF
           terraform plan
           terraform apply -auto-approve
