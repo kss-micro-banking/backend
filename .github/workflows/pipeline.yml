@@ -50,6 +50,7 @@ jobs:
     needs:
       - test-and-build
       - security-scan
+
     if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main'
 
     steps:
