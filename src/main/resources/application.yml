@@ -15,8 +15,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 465
-    username: veekthorcodes@gmail.com
-    password: ofdzzxqbjvsqtjmt
+    username: ${MAIL_USER:veekthorcodes@gmail.com}
+    password: ${MAIL_PASSWORD:ofdzzxqbjvsqtjmt}
     properties:
       mail:
         smtp:
@@ -25,7 +25,7 @@ spring:
           socketFactory:
             class: javax.net.ssl.SSLSocketFactory
 jwt:
-  secret: bAOzFxCO7OTGBDF5hTGJZlRPUlMJ5MIt/qSfKGiqfHI=
+  secret: ${JWT_SECRET:bAOzFxCO7OTGBDF5hTGJZlRPUlMJ5MIt/qSfKGiqfHI=}
   expiration: 86400000
 springdoc:
   swagger-ui:
