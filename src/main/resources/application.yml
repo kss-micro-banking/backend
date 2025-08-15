@@ -2,9 +2,7 @@ spring:
   application:
     name: cms
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/kss_test}
-    username: ${DB_USER:lhuser}
-    password: ${DB_PASSWORD:lhpassword}
+    url: ${DB_URL}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -15,8 +13,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 465
-    username: ${MAIL_USER:veekthorcodes@gmail.com}
-    password: ${MAIL_PASSWORD:ofdzzxqbjvsqtjmt}
+    username: ${MAIL_USER}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -25,7 +23,7 @@ spring:
           socketFactory:
             class: javax.net.ssl.SSLSocketFactory
 jwt:
-  secret: ${JWT_SECRET:bAOzFxCO7OTGBDF5hTGJZlRPUlMJ5MIt/qSfKGiqfHI=}
+  secret: ${JWT_SECRET}
   expiration: 86400000
 springdoc:
   swagger-ui:
@@ -33,4 +31,4 @@ springdoc:
     filter: true
     path: /swagger-ui.html
 app:
-  client-url: ${CLIENT_URL:http://localhost:5173}
+  client-url: ${CLIENT_URL}
